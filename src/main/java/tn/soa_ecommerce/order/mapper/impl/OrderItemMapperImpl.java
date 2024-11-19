@@ -19,7 +19,6 @@ public class OrderItemMapperImpl implements Mapper<OrderItem, OrderItemDTO> {
         return modelMapper.map(orderItem, OrderItemDTO.class);
 
     }
-
     @Override
     public OrderItem mapFrom(OrderItemDTO orderItemDto) {
         return modelMapper.map(orderItemDto, OrderItem.class);

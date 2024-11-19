@@ -11,6 +11,7 @@ import tn.soa_ecommerce.order.model.OrderItem;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class InventoryService {
@@ -21,13 +22,13 @@ public class InventoryService {
         this.restTemplate = restTemplate;
     }
 
-    public boolean reserveProducts(List<OrderItem> products, String orderId) {
+    public boolean reserveProducts(UUID orderId, List<OrderItem> products) {
         String url = "http://localhost:8085/inventory/reserve";
 
         // Prepare the request payload using a Map
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("orderId", orderId); // Pass the orderId
-        requestBody.put("products", products); // Pass the list of OrderItemDTO
+        requestBody.put("orderId", orderId);
+        requestBody.put("products", products);
 
         // Set headers for the request
         HttpHeaders headers = new HttpHeaders();

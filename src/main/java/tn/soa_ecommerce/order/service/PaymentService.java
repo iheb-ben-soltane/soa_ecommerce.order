@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class PaymentService {
@@ -20,14 +21,14 @@ public class PaymentService {
         this.restTemplate = restTemplate;
     }
 
-    public boolean processPayment(String cartId, String userId, double amount) {
+    public boolean processPayment(UUID orderId, UUID customerId, double amount) {
         String url = "http://localhost:8086/payment/process"; // URL of the Payment microservice
 
         // Prepare the request payload using a Map
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("cartId", cartId);   // Pass the cartId
-        requestBody.put("userId", userId);   // Pass the userId
-        requestBody.put("amount", amount);   // Pass the amount to be paid
+        requestBody.put("orderId", orderId);
+        requestBody.put("customerId", customerId);
+        requestBody.put("amount", amount);
 
         // Set headers for the request
         HttpHeaders headers = new HttpHeaders();

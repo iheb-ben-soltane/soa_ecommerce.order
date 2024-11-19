@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class MailingService {
@@ -19,17 +20,17 @@ public class MailingService {
         this.restTemplate = restTemplate;
     }
 
-    public boolean sendEmail(String cartId, String userName, String orderStatus, double amount) {
+    public boolean sendEmail(UUID orderId, UUID customerId, String orderStatus, double amount) {
         String url = "http://localhost:8091/mail/send"; // URL of the Mailing microservice
 
         // Prepare the request payload using a Map
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("templateId", "orderConfirmationTemplate");  // You can pass a specific templateId if required
+        requestBody.put("templateId", "orderConfirmationTemplate");
         Map<String, Object> variables = new HashMap<>();
-        variables.put("cartId", cartId);         // Pass the cartId
-        variables.put("userName", userName);     // Pass the userName
-        variables.put("orderStatus", orderStatus); // Pass the orderStatus
-        variables.put("amount", amount);         // Pass the order amount
+        variables.put("orderId", orderId);
+        variables.put("customerId", customerId);
+        variables.put("orderStatus", orderStatus);
+        variables.put("amount", amount);
         requestBody.put("variables", variables);
 
         // Set headers for the request

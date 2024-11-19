@@ -11,10 +11,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDTO {
-
     private UUID orderID;
     private UUID customerID;
-    private Date orderDate;
+    private UUID cartID;
     private Double totalAmount;
-    private List<OrderItemDTO> items; // List of OrderItemDTO to represent items in the order
+    private List<OrderItemDTO> items;
 }

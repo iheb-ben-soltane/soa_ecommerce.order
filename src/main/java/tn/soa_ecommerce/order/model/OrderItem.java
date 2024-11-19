@@ -1,5 +1,7 @@
 package tn.soa_ecommerce.order.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,16 +14,13 @@ import java.util.UUID;
 @Entity
 @Table(name = "order_items")
 public class OrderItem {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderItemID;
-
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonIgnore
     private Order order;
-
-    private UUID productId;
+    private UUID productID;
     private Integer quantity;
-    private Double price;
 }
