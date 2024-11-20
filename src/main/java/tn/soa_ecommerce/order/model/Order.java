@@ -1,13 +1,9 @@
 package tn.soa_ecommerce.order.model;
 
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,7 +19,8 @@ public class Order {
     private UUID customerID;
     private UUID cartID;
     private Double totalAmount;
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;
+    private OrderStatus status;
 }
+

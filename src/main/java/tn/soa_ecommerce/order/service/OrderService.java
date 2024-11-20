@@ -6,12 +6,10 @@ import tn.soa_ecommerce.order.dto.OrderItemDTO;
 import tn.soa_ecommerce.order.mapper.Mapper;
 import tn.soa_ecommerce.order.model.Order;
 import tn.soa_ecommerce.order.model.OrderItem;
+import tn.soa_ecommerce.order.model.OrderStatus;
 import tn.soa_ecommerce.order.repository.OrderRepository;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class OrderService {
@@ -41,36 +39,65 @@ public class OrderService {
 
     public OrderDTO createOrder(Order order) {
 
-  /*     // Step 1: Reserve products in the inventory
-        boolean isReserved = inventoryService.reserveProducts( order.getOrderID(),order.getItems());
-        System.out.println("isReserved: " +isReserved );
+        try {
+/*            // Step 1: Reserve products in the inventory
+            boolean isReserved = inventoryService.reserveProducts(order.getOrderID(), order.getItems());
+            if (!isReserved) {
+                order.setStatus(OrderStatus.FAILED);
+                throw new RuntimeException("Failed to reserve products in inventory");
+            }
+            order.setStatus(OrderStatus.RESERVED);
 
-        if (!isReserved) {
-            throw new RuntimeException("Failed to reserve products in inventory");
+            // Step 2: Process payment
+            boolean isPaymentSuccessful = paymentService.processPayment(order.getOrderID(), order.getCustomerID(), order.getTotalAmount());
+            if (!isPaymentSuccessful) {
+                order.setStatus(OrderStatus.FAILED);
+                throw new RuntimeException("Payment failed");
+            }
+            order.setStatus(OrderStatus.PAID);
+
+            // Step 3: Schedule shipping
+            boolean isShippingScheduled = shippingService.scheduleShipping(order.getOrderID(), order.getCustomerID());
+            if (!isShippingScheduled) {
+                order.setStatus(OrderStatus.FAILED);
+                throw new RuntimeException("Failed to schedule shipping");
+            }
+            order.setStatus(OrderStatus.SHIPPING_SCHEDULED);
+
+            // Step 4: Send email notification
+            boolean isEmailSent = mailingService.sendEmail(order.getOrderID(), order.getCustomerID(), order.getStatus(), order.getTotalAmount());
+            if (!isEmailSent) {
+                order.setStatus(OrderStatus.FAILED);
+                throw new RuntimeException("Failed to send confirmation email");
+            }*/
+
+            order.setStatus(OrderStatus.COMPLETED);
+            Order savedOrder = orderRepository.save(order);
+
+            return orderMapper.mapTo(savedOrder);
+
+        } catch (RuntimeException e) {
+            // Persist the order status as FAILED if an exception occurs
+            order.setStatus(OrderStatus.FAILED);
+            orderRepository.save(order);
+            throw e;
         }
+    }
 
-      // Step 2: Process payment
-        boolean isPaymentSuccessful = paymentService.processPayment(order.getOrderID(), order.getCustomerID(), order.getTotalAmount());
-        if (!isPaymentSuccessful) {
-            throw new RuntimeException("Payment failed");
+    public Optional<Order> getOrderById(UUID id) {
+        return orderRepository.findById(id);
+    }
+
+    public boolean cancelOrder(UUID id) {
+        Optional<Order> orderOptional = orderRepository.findById(id);
+        if (orderOptional.isPresent()) {
+            Order order = orderOptional.get();
+            if (order.getStatus() != OrderStatus.COMPLETED) {
+                order.setStatus(OrderStatus.CANCELED);
+                orderRepository.save(order);
+                return true;
+            }
         }
-
-        // Step 3: Schedule shipping
-        boolean isShippingScheduled = shippingService.scheduleShipping(order.getOrderID(), order.getCustomerID(), "Customer Address Here");
-        if (!isShippingScheduled) {
-            throw new RuntimeException("Failed to schedule shipping");
-        }
-
-        // Step 4: Send email notification
-        boolean isEmailSent = mailingService.sendEmail(order.getOrderID(), order.getCustomerID(), "Order Confirmed", order.getTotalAmount());
-        if (!isEmailSent) {
-            throw new RuntimeException("Failed to send confirmation email");
-        }
-*/
-        // Step 5: Save the order to the database if all steps were successful
-        Order savedOrder = orderRepository.save(order);
-
-        // Map saved Order entity back to OrderDTO to return
-        return orderMapper.mapTo(savedOrder);
+        return false;
     }
 }

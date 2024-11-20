@@ -20,31 +20,27 @@ public class ShippingService {
         this.restTemplate = restTemplate;
     }
 
-    public boolean scheduleShipping(UUID orderId, UUID customerId, String address) {
-        String url = "http://localhost:8090/shipping/schedule"; // URL of the Shipping microservice
+    public boolean scheduleShipping(UUID orderId, UUID customerId) {
+        String url = "http://localhost:8090/shipping/schedule";
 
-        // Prepare the request payload using a Map
+
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("orderId", orderId);
         requestBody.put("customerId", customerId);
-        requestBody.put("address", address);
 
-        // Set headers for the request
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Wrap the body and headers into an HttpEntity
+
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        // Send POST request to Shipping microservice and get the response
         ResponseEntity<Map> response = restTemplate.postForEntity(url, requestEntity, Map.class);
 
-        // Get the shipping status from the response
         Map<String, Object> responseBody = response.getBody();
         if (responseBody != null && "scheduled".equalsIgnoreCase((String) responseBody.get("shippingStatus"))) {
-            return true; // Shipping was successfully scheduled
+            return true;
         }
 
-        return false; // Shipping failed
+        return false;
     }
 }

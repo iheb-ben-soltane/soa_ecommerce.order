@@ -22,30 +22,26 @@ public class PaymentService {
     }
 
     public boolean processPayment(UUID orderId, UUID customerId, double amount) {
-        String url = "http://localhost:8086/payment/process"; // URL of the Payment microservice
+        String url = "http://localhost:8086/payment/process";
 
-        // Prepare the request payload using a Map
+
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("orderId", orderId);
         requestBody.put("customerId", customerId);
         requestBody.put("amount", amount);
 
-        // Set headers for the request
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Wrap the body and headers into an HttpEntity
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        // Send POST request to Payment microservice and get the response
         ResponseEntity<Map> response = restTemplate.postForEntity(url, requestEntity, Map.class);
 
-        // Get the payment status from the response
         Map<String, Object> responseBody = response.getBody();
         if (responseBody != null && "success".equalsIgnoreCase((String) responseBody.get("paymentStatus"))) {
-            return true; // Payment was successful
+            return true;
         }
 
-        return false; // Payment failed
+        return false;
     }
 }

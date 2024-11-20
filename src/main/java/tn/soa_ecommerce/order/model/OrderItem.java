@@ -15,12 +15,8 @@ import java.util.UUID;
 @Table(name = "order_items")
 public class OrderItem {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long orderItemID;
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    @JsonIgnore
-    private Order order;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID orderItemID;
     private UUID productID;
     private Integer quantity;
 }

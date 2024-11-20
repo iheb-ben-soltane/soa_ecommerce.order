@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import tn.soa_ecommerce.order.model.OrderStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,10 +21,9 @@ public class MailingService {
         this.restTemplate = restTemplate;
     }
 
-    public boolean sendEmail(UUID orderId, UUID customerId, String orderStatus, double amount) {
-        String url = "http://localhost:8091/mail/send"; // URL of the Mailing microservice
+    public boolean sendEmail(UUID orderId, UUID customerId, OrderStatus orderStatus, double amount) {
+        String url = "http://localhost:8091/mail/send";
 
-        // Prepare the request payload using a Map
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("templateId", "orderConfirmationTemplate");
         Map<String, Object> variables = new HashMap<>();
@@ -33,22 +33,18 @@ public class MailingService {
         variables.put("amount", amount);
         requestBody.put("variables", variables);
 
-        // Set headers for the request
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Wrap the body and headers into an HttpEntity
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        // Send POST request to Mailing microservice and get the response
         ResponseEntity<Map> response = restTemplate.postForEntity(url, requestEntity, Map.class);
 
-        // Get the email status from the response
         Map<String, Object> responseBody = response.getBody();
         if (responseBody != null && "sent".equalsIgnoreCase((String) responseBody.get("emailStatus"))) {
-            return true; // Email was successfully sent
+            return true;
         }
 
-        return false; // Email sending failed
+        return false;
     }
 }

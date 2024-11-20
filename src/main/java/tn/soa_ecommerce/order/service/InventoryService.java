@@ -25,22 +25,17 @@ public class InventoryService {
     public boolean reserveProducts(UUID orderId, List<OrderItem> products) {
         String url = "http://localhost:8085/inventory/reserve";
 
-        // Prepare the request payload using a Map
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("orderId", orderId);
         requestBody.put("products", products);
 
-        // Set headers for the request
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Wrap the body and headers into an HttpEntity
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        // Send POST request to Inventory microservice and get the response
         ResponseEntity<Boolean> response = restTemplate.postForEntity(url, requestEntity, Boolean.class);
 
-        // Return the response body which should be true or false based on inventory reservation
         return response.getBody() != null && response.getBody();
     }
 }
