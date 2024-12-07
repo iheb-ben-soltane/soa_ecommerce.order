@@ -56,7 +56,7 @@ public class OrderController {
         }
     }
 
-    @PutMapping("/cancel/{id}")
+   /* @PutMapping("/cancel/{id}")
     public ResponseEntity<String> cancelOrder(@PathVariable UUID id) {
         try {
             boolean isCancelled = orderService.cancelOrder(id);
@@ -69,5 +69,5 @@ public class OrderController {
             System.out.println("error: " + e.getMessage());
             return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
+    }*/
 }
