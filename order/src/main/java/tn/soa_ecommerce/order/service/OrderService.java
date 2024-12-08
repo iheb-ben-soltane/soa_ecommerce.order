@@ -48,7 +48,6 @@ public class OrderService {
 
     public OrderDTO createOrder(Order order) throws JsonProcessingException {
         try {
-            // Initialize order
             order.setStatus(OrderStatus.CREATED);
             Order savedOrder = orderRepository.save(order);
             System.out.println(objectMapper.writeValueAsString(savedOrder));
@@ -56,7 +55,6 @@ public class OrderService {
             inventoryDetails.put("orderId", savedOrder.getOrderID());
             inventoryDetails.put("Items", order.getItems());
 
-            // Trigger inventory reservation
             kafkaProducer.sendMessage(
                     INVENTORY_RESERVE_TOPIC,
                     savedOrder.getOrderID().toString(),
@@ -72,7 +70,7 @@ public class OrderService {
         }
     }
 
-    @KafkaListener(topics = INVENTORY_RESERVE_RESULT_TOPIC, groupId = "order-workflow-group")
+    @KafkaListener(topics = INVENTORY_RESERVE_RESULT_TOPIC, groupId = "order-group")
     public void handleInventoryReservationResult(String message, Acknowledgment acknowledgment) {
         try {
             Map<String, Object> result = objectMapper.readValue(message, Map.class);
@@ -80,7 +78,7 @@ public class OrderService {
             boolean success = (boolean) result.get("success");
             if (success) {
                 updateOrderStatus(orderId, OrderStatus.RESERVED);
-                // Prepare payment details (orderId, customerId, totalAmount)
+
                 Optional<Order> orderOptional = getOrderById(orderId);
                 if (orderOptional.isPresent()) {
                     Order order = orderOptional.get();
@@ -92,7 +90,6 @@ public class OrderService {
                     paymentDetails.put("customerId", order.getCustomerID());
                     paymentDetails.put("totalAmount", order.getTotalAmount());
 
-                    // Trigger payment processing
                     kafkaProducer.sendMessage(
                             PAYMENT_PROCESS_TOPIC,
                             orderId.toString(),
@@ -100,19 +97,17 @@ public class OrderService {
                     );
                 }
             } else {
-                // Inventory reservation failed
                 updateOrderStatus(orderId, OrderStatus.FAILED);
             }
 
 
             acknowledgment.acknowledge();
         } catch (Exception e) {
-            // Handle parsing or processing errors
             e.printStackTrace();
         }
     }
 
-    @KafkaListener(topics = PAYMENT_PROCESS_RESULT_TOPIC, groupId = "order-workflow-group")
+    @KafkaListener(topics = PAYMENT_PROCESS_RESULT_TOPIC, groupId = "order-group")
     public void handlePaymentProcessResult(String message, Acknowledgment acknowledgment) {
         try {
             Map<String, Object> result = objectMapper.readValue(message, Map.class);
@@ -121,7 +116,7 @@ public class OrderService {
 
             if (success) {
                 updateOrderStatus(orderId, OrderStatus.PAID);
-                // Prepare payment details (orderId, customerId, totalAmount)
+
                 Optional<Order> orderOptional = getOrderById(orderId);
                 if (orderOptional.isPresent()) {
                     Order order = orderOptional.get();
@@ -132,7 +127,6 @@ public class OrderService {
                     shippingDetails.put("orderId", order.getOrderID());
                     shippingDetails.put("customerId", order.getCustomerID());
 
-                    // Trigger shipping scheduling
                     kafkaProducer.sendMessage(
                             SHIPPING_SCHEDULE_TOPIC,
                             orderId.toString(),
@@ -140,7 +134,6 @@ public class OrderService {
                     );
                 }
             } else {
-                // Payment processing failed
                 updateOrderStatus(orderId, OrderStatus.FAILED);
             }
 
@@ -150,7 +143,7 @@ public class OrderService {
         }
     }
 
-    @KafkaListener(topics = SHIPPING_SCHEDULE_RESULT_TOPIC, groupId = "order-workflow-group")
+    @KafkaListener(topics = SHIPPING_SCHEDULE_RESULT_TOPIC, groupId = "order-group")
     public void handleShippingScheduleResult(String message, Acknowledgment acknowledgment) {
         try {
             Map<String, Object> result = objectMapper.readValue(message, Map.class);
@@ -159,7 +152,7 @@ public class OrderService {
 
             if (success) {
                 updateOrderStatus(orderId, OrderStatus.SHIPPING_SCHEDULED);
-                // Prepare shipping details (orderId and customerId)
+
                 Optional<Order> orderOptional = getOrderById(orderId);
                 if (orderOptional.isPresent()) {
                     Order order = orderOptional.get();
@@ -168,7 +161,6 @@ public class OrderService {
                     mailingDetails.put("orderId", order.getOrderID());
                     mailingDetails.put("customerId", order.getCustomerID());
 
-                    // Trigger shipping scheduling
                     kafkaProducer.sendMessage(
                             NOTIFICATION_SEND_TOPIC,
                             orderId.toString(),
@@ -176,7 +168,6 @@ public class OrderService {
                     );
                 }
             } else {
-                // Payment processing failed
                updateOrderStatus(orderId, OrderStatus.FAILED);
             }
 
@@ -186,7 +177,7 @@ public class OrderService {
         }
     }
 
-    @KafkaListener(topics = NOTIFICATION_SEND_RESULT_TOPIC, groupId = "order-workflow-group")
+    @KafkaListener(topics = NOTIFICATION_SEND_RESULT_TOPIC, groupId = "order-group")
     public void handleNotificationSendResult(String message, Acknowledgment acknowledgment) {
         try {
             Map<String, Object> result = objectMapper.readValue(message, Map.class);
@@ -202,7 +193,6 @@ public class OrderService {
                 }
 
             } else {
-                // Payment processing failed
                 updateOrderStatus(orderId, OrderStatus.FAILED);
             }
 

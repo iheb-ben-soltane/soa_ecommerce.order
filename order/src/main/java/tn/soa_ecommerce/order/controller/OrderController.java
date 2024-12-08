@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import tn.soa_ecommerce.order.dto.OrderDTO;
 import tn.soa_ecommerce.order.mapper.Mapper;
 import tn.soa_ecommerce.order.model.Order;
-import tn.soa_ecommerce.order.model.OrderStatus;
 import tn.soa_ecommerce.order.service.OrderService;
 
 import java.util.Optional;
