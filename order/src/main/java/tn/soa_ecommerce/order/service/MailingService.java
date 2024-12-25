@@ -1,5 +1,6 @@
 package tn.soa_ecommerce.order.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +17,15 @@ import java.util.UUID;
 public class MailingService {
 
     private final RestTemplate restTemplate;
+    @Value("${mail.service.url}")
+    private String mailServiceUrl;
+
 
     public MailingService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
     public boolean sendEmail(UUID orderId, UUID customerId, OrderStatus orderStatus, double amount) {
-        String url = "http://localhost:8091/mail/send";
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("templateId", "orderConfirmationTemplate");
@@ -38,7 +41,7 @@ public class MailingService {
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(url, requestEntity, Map.class);
+        ResponseEntity<Map> response = restTemplate.postForEntity(mailServiceUrl, requestEntity, Map.class);
 
         Map<String, Object> responseBody = response.getBody();
         if (responseBody != null && "sent".equalsIgnoreCase((String) responseBody.get("emailStatus"))) {

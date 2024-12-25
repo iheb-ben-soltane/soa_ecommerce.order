@@ -40,7 +40,9 @@ public class OrderService {
     public OrderDTO createOrder(Order order) {
 
         try {
-/*            // Step 1: Reserve products in the inventory
+           order = orderRepository.save(order);
+
+           // Step 1: Reserve products in the inventory
             boolean isReserved = inventoryService.reserveProducts(order.getOrderID(), order.getItems());
             if (!isReserved) {
                 order.setStatus(OrderStatus.FAILED);
@@ -48,7 +50,7 @@ public class OrderService {
             }
             order.setStatus(OrderStatus.RESERVED);
 
-            // Step 2: Process payment
+ /*          // Step 2: Process payment
             boolean isPaymentSuccessful = paymentService.processPayment(order.getOrderID(), order.getCustomerID(), order.getTotalAmount());
             if (!isPaymentSuccessful) {
                 order.setStatus(OrderStatus.FAILED);
@@ -56,7 +58,7 @@ public class OrderService {
             }
             order.setStatus(OrderStatus.PAID);
 
-            // Step 3: Schedule shipping
+/*            // Step 3: Schedule shipping
             boolean isShippingScheduled = shippingService.scheduleShipping(order.getOrderID(), order.getCustomerID());
             if (!isShippingScheduled) {
                 order.setStatus(OrderStatus.FAILED);

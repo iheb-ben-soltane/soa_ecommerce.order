@@ -1,5 +1,6 @@
 package tn.soa_ecommerce.order.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +16,13 @@ import java.util.UUID;
 public class ShippingService {
 
     private final RestTemplate restTemplate;
-
+    @Value("${shipping.service.url}")
+    private String shippingServiceUrl;
     public ShippingService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
     public boolean scheduleShipping(UUID orderId, UUID customerId) {
-        String url = "http://localhost:8090/shipping/schedule";
 
 
         Map<String, Object> requestBody = new HashMap<>();
@@ -34,7 +35,7 @@ public class ShippingService {
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(url, requestEntity, Map.class);
+        ResponseEntity<Map> response = restTemplate.postForEntity(shippingServiceUrl, requestEntity, Map.class);
 
         Map<String, Object> responseBody = response.getBody();
         if (responseBody != null && "scheduled".equalsIgnoreCase((String) responseBody.get("shippingStatus"))) {

@@ -1,6 +1,7 @@
 package tn.soa_ecommerce.order.service;
 
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +17,14 @@ import java.util.UUID;
 public class PaymentService {
 
     private final RestTemplate restTemplate;
+    @Value("${payment.service.url}")
+    private String paymentServiceUrl;
 
     public PaymentService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
     public boolean processPayment(UUID orderId, UUID customerId, double amount) {
-        String url = "http://localhost:8086/payment/process";
 
 
         Map<String, Object> requestBody = new HashMap<>();
@@ -35,7 +37,7 @@ public class PaymentService {
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(url, requestEntity, Map.class);
+        ResponseEntity<Map> response = restTemplate.postForEntity(paymentServiceUrl, requestEntity, Map.class);
 
         Map<String, Object> responseBody = response.getBody();
         if (responseBody != null && "success".equalsIgnoreCase((String) responseBody.get("paymentStatus"))) {
