@@ -17,7 +17,6 @@ Ce microservice interagit avec plusieurs autres microservices pour gérer l'ense
 - **Service Name**: order
 - **Port**: 8084
 - **Database**: PostgreSQL
-- **Kafka Broker**: localhost:9092
 
 ## URLs des Services
 1. `cart.service.url`
